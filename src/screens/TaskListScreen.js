@@ -74,13 +74,13 @@ export default function TaskListScreen({ navigation }) {
   const handleAdd = () => {
     let valid = true;
     if (!title.trim() || title.trim().length < 3) {
-      setTitleError('Titulli duhet të ketë të paktën 3 karaktere');
+      setTitleError('Title must be at least 3 characters');
       valid = false;
     } else {
       setTitleError('');
     }
     if (!description.trim()) {
-      setDescError('Përshkrimi nuk mund të jetë bosh');
+      setDescError('Description cannot be empty');
       valid = false;
     } else {
       setDescError('');
@@ -97,11 +97,11 @@ export default function TaskListScreen({ navigation }) {
     const apiTasks = await fetchSuggestedTasks();
     saveAndSet([...apiTasks, ...tasks]);
     setImporting(false);
-    Alert.alert('Sukses!', 'U importuan 5 detyra nga API!');
+    Alert.alert('Success!', '5 tasks imported from API!');
   };
 
   const handleDelete = (id) => {
-  if (window.confirm('Je i sigurt që dëshiron ta fshish këtë detyrë?')) {
+  if (window.confirm('Are you sure you want to delete this task?')) {
     deleteTask(id);
   }
 };
@@ -110,8 +110,8 @@ export default function TaskListScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Detyrat e mia</Text>
-          <Text style={styles.headerSub}>{tasks.length} detyra gjithsej</Text>
+          <Text style={styles.headerTitle}>My Tasks</Text>
+          <Text style={styles.headerSub}>{tasks.length} tasks in total</Text>
         </View>
         <View style={styles.headerButtons}>
           <TouchableOpacity style={styles.importBtn} onPress={handleImport} disabled={importing}>
@@ -130,7 +130,7 @@ export default function TaskListScreen({ navigation }) {
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={styles.searchInput}
-          placeholder="Kërko detyra..."
+          placeholder="Search Tasks..."
           value={search}
           onChangeText={(text) => setSearch(text)}
           placeholderTextColor="#bbb"
@@ -139,9 +139,9 @@ export default function TaskListScreen({ navigation }) {
 
       <View style={styles.filterRow}>
         {[
-          { key: 'all', label: 'Të gjitha' },
-          { key: 'active', label: 'Aktive' },
-          { key: 'completed', label: 'Përfunduara' },
+          { key: 'all', label: 'All' },
+          { key: 'active', label: 'Active' },
+          { key: 'completed', label: 'Completed' },
         ].map((f) => (
           <TouchableOpacity
             key={f.key}
@@ -173,22 +173,22 @@ export default function TaskListScreen({ navigation }) {
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Detyrë e re</Text>
+            <Text style={styles.modalTitle}>New Task</Text>
 
-            <Text style={styles.label}>Titulli *</Text>
+            <Text style={styles.label}>Title *</Text>
             <TextInput
               style={[styles.input, titleError ? styles.inputError : null]}
-              placeholder="p.sh. Bëj pazar..."
+              placeholder="e.g., Shopping..."
               value={title}
               onChangeText={setTitle}
               maxLength={60}
             />
             {titleError ? <Text style={styles.errorText}>{titleError}</Text> : null}
 
-            <Text style={styles.label}>Përshkrimi *</Text>
+            <Text style={styles.label}>Description *</Text>
             <TextInput
               style={[styles.input, styles.textArea, descError ? styles.inputError : null]}
-              placeholder="Shkruaj përshkrimin..."
+              placeholder="Enter description..."
               value={description}
               onChangeText={setDescription}
               multiline
@@ -208,10 +208,10 @@ export default function TaskListScreen({ navigation }) {
                   setDescError('');
                 }}
               >
-                <Text style={styles.cancelText}>Anulo</Text>
+                <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleAdd}>
-                <Text style={styles.saveText}>Shto</Text>
+                <Text style={styles.saveText}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>

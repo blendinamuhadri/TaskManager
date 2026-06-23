@@ -17,20 +17,20 @@ export default function TaskDetailScreen({ route }) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.badge, isCompleted ? styles.badgeDone : styles.badgeActive]}>
           <Text style={[styles.badgeText, isCompleted ? styles.badgeTextDone : styles.badgeTextActive]}>
-            {isCompleted ? '✓ Përfunduar' : '● Aktive'}
+            {isCompleted ? '✓ Completed' : '● Active'}
           </Text>
         </View>
 
         <Text style={styles.title}>{task.title}</Text>
         <View style={styles.divider} />
 
-        <Text style={styles.sectionLabel}>Përshkrimi</Text>
+        <Text style={styles.sectionLabel}>Description</Text>
         <Text style={styles.description}>{task.description}</Text>
 
         <View style={styles.dateRow}>
           <Text style={styles.dateIcon}>📅</Text>
           <View>
-            <Text style={styles.dateLabel}>Data e krijimit</Text>
+            <Text style={styles.dateLabel}>Creation Date</Text>
             <Text style={styles.dateValue}>{formattedDate}</Text>
           </View>
         </View>

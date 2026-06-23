@@ -5,9 +5,9 @@ export default function EmptyState() {
   return (
     <View style={styles.container}>
       <Text style={styles.icon}>📋</Text>
-      <Text style={styles.title}>Asnjë detyrë ende</Text>
+      <Text style={styles.title}>No tasks yet</Text>
       <Text style={styles.subtitle}>
-        Shtyp butonin + për të shtuar detyrën e parë
+        Press the + button to add your first task
       </Text>
     </View>
   );
