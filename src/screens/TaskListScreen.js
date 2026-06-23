@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput,
+  View, Text, ScrollView, TouchableOpacity, TextInput,
   Modal, StyleSheet, SafeAreaView, ActivityIndicator, Alert,
 } from 'react-native';
 import { useTasks } from '../hooks/useTasks';
@@ -112,20 +112,21 @@ export default function TaskListScreen({ navigation }) {
         ))}
       </View>
 
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TaskItem
-            task={item}
-            onToggle={() => toggleComplete(item.id)}
-            onDelete={() => handleDelete(item.id)}
-            onPress={() => navigation.navigate('TaskDetail', { task: item })}
-          />
-        )}
-        ListEmptyComponent={<EmptyState />}
-        contentContainerStyle={styles.list}
+      <ScrollView contentContainerStyle={styles.list}>
+  {filtered.length === 0 ? (
+    <EmptyState />
+  ) : (
+    filtered.map((item) => (
+      <TaskItem
+        key={item.id}
+        task={item}
+        onToggle={() => toggleComplete(item.id)}
+        onDelete={() => handleDelete(item.id)}
+        onPress={() => navigation.navigate('TaskDetail', { task: item })}
       />
+    ))
+  )}
+</ScrollView>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>

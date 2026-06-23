@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-get-random-values';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import TaskListScreen from './src/screens/TaskListScreen';
+import TaskDetailScreen from './src/screens/TaskDetailScreen';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: { backgroundColor: '#f4f4f8', elevation: 0, shadowOpacity: 0 },
+          headerTintColor: '#6C63FF',
+          headerTitleStyle: { fontWeight: '700', color: '#1a1a2e' },
+          cardStyle: { backgroundColor: '#f4f4f8' },
+        }}
+      >
+        <Stack.Screen
+          name="TaskList"
+          component={TaskListScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TaskDetail"
+          component={TaskDetailScreen}
+          options={{ title: 'Detaje' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
