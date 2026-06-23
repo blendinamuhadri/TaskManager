@@ -19,3 +19,10 @@ export const loadTasks = async () => {
     return [];
   }
 };
+export const clearTasks = async () => {
+  try {
+    await AsyncStorage.removeItem('@tasks');
+  } catch (e) {
+    console.error('Error clearing tasks:', e);
+  }
+};

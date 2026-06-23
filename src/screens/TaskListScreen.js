@@ -1,15 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   Modal, StyleSheet, SafeAreaView, ActivityIndicator, Alert,
 } from 'react-native';
-import { useTasks } from '../hooks/useTasks';
+import { saveTasks, loadTasks } from '../utils/storage';
 import TaskItem from '../components/TaskItem';
 import EmptyState from '../components/EmptyState';
 import { fetchSuggestedTasks } from '../utils/api';
 
+const generateId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
 export default function TaskListScreen({ navigation }) {
-  const { tasks, addTask, deleteTask, toggleComplete, importTasks } = useTasks();
+  const [tasks, setTasks] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -19,6 +21,44 @@ export default function TaskListScreen({ navigation }) {
   const [filter, setFilter] = useState('all');
   const [importing, setImporting] = useState(false);
 
+  useEffect(() => {
+    const load = async () => {
+      const saved = await loadTasks();
+      setTasks(saved);
+    };
+    load();
+  }, []);
+
+  const saveAndSet = (updated) => {
+    setTasks(updated);
+    saveTasks(updated);
+  };
+
+  const addTask = (t, d) => {
+    const newTask = {
+      id: generateId(),
+      title: t,
+      description: d,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+    saveAndSet([newTask, ...tasks]);
+  };
+
+  const deleteTask = (id) => {
+    saveAndSet(tasks.filter((t) => t.id !== id));
+  };
+
+  const toggleComplete = (id) => {
+    saveAndSet(
+      tasks.map((t) =>
+        t.id === id
+          ? { ...t, status: t.status === 'completed' ? 'active' : 'completed' }
+          : t
+      )
+    );
+  };
+
   const filtered = useMemo(() => {
     return tasks
       .filter((t) => {
@@ -26,7 +66,9 @@ export default function TaskListScreen({ navigation }) {
         if (filter === 'completed') return t.status === 'completed';
         return true;
       })
-      .filter((t) => t.title.toLowerCase().includes(search.toLowerCase()));
+      .filter((t) =>
+        t.title.toLowerCase().includes(search.toLowerCase())
+      );
   }, [tasks, filter, search]);
 
   const handleAdd = () => {
@@ -44,7 +86,6 @@ export default function TaskListScreen({ navigation }) {
       setDescError('');
     }
     if (!valid) return;
-
     addTask(title.trim(), description.trim());
     setTitle('');
     setDescription('');
@@ -54,17 +95,16 @@ export default function TaskListScreen({ navigation }) {
   const handleImport = async () => {
     setImporting(true);
     const apiTasks = await fetchSuggestedTasks();
-    importTasks(apiTasks);
+    saveAndSet([...apiTasks, ...tasks]);
     setImporting(false);
     Alert.alert('Sukses!', 'U importuan 5 detyra nga API!');
   };
 
   const handleDelete = (id) => {
-    Alert.alert('Fshi detyrën', 'Je i sigurt?', [
-      { text: 'Anulo', style: 'cancel' },
-      { text: 'Fshi', style: 'destructive', onPress: () => deleteTask(id) },
-    ]);
-  };
+  if (window.confirm('Je i sigurt që dëshiron ta fshish këtë detyrë?')) {
+    deleteTask(id);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,11 +115,10 @@ export default function TaskListScreen({ navigation }) {
         </View>
         <View style={styles.headerButtons}>
           <TouchableOpacity style={styles.importBtn} onPress={handleImport} disabled={importing}>
-            {importing ? (
-              <ActivityIndicator size="small" color="#6C63FF" />
-            ) : (
-              <Text style={styles.importBtnText}>⬇ Import</Text>
-            )}
+            {importing
+              ? <ActivityIndicator size="small" color="#6C63FF" />
+              : <Text style={styles.importBtnText}>⬇ Import</Text>
+            }
           </TouchableOpacity>
           <TouchableOpacity style={styles.addBtn} onPress={() => setModalVisible(true)}>
             <Text style={styles.addBtnText}>+</Text>
@@ -93,40 +132,43 @@ export default function TaskListScreen({ navigation }) {
           style={styles.searchInput}
           placeholder="Kërko detyra..."
           value={search}
-          onChangeText={setSearch}
+          onChangeText={(text) => setSearch(text)}
           placeholderTextColor="#bbb"
         />
       </View>
 
       <View style={styles.filterRow}>
-        {['all', 'active', 'completed'].map((f) => (
+        {[
+          { key: 'all', label: 'Të gjitha' },
+          { key: 'active', label: 'Aktive' },
+          { key: 'completed', label: 'Përfunduara' },
+        ].map((f) => (
           <TouchableOpacity
-            key={f}
-            style={[styles.filterBtn, filter === f && styles.filterBtnActive]}
-            onPress={() => setFilter(f)}
+            key={f.key}
+            style={[styles.filterBtn, filter === f.key && styles.filterBtnActive]}
+            onPress={() => setFilter(f.key)}
           >
-            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-              {f === 'all' ? 'Të gjitha' : f === 'active' ? 'Aktive' : 'Përfunduara'}
+            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
+              {f.label}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={styles.list}>
-  {filtered.length === 0 ? (
-    <EmptyState />
-  ) : (
-    filtered.map((item) => (
-      <TaskItem
-        key={item.id}
-        task={item}
-        onToggle={() => toggleComplete(item.id)}
-        onDelete={() => handleDelete(item.id)}
-        onPress={() => navigation.navigate('TaskDetail', { task: item })}
-      />
-    ))
-  )}
-</ScrollView>
+        {filtered.length === 0
+          ? <EmptyState />
+          : filtered.map((item) => (
+            <TaskItem
+              key={item.id}
+              task={item}
+              onToggle={() => toggleComplete(item.id)}
+              onDelete={() => handleDelete(item.id)}
+              onPress={() => navigation.navigate('TaskDetail', { task: item })}
+            />
+          ))
+        }
+      </ScrollView>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>

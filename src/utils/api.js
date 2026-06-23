@@ -5,7 +5,7 @@ export const fetchSuggestedTasks = async () => {
     );
     const data = await response.json();
     return data.map((item) => ({
-      id: String(item.id),
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9) + item.id,
       title: item.title,
       description: 'Imported from API',
       status: item.completed ? 'completed' : 'active',

@@ -1,19 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 
 export default function TaskItem({ task, onToggle, onDelete, onPress }) {
   const isCompleted = task.status === 'completed';
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
-      <TouchableOpacity
+    <View style={styles.card}>
+      <Pressable
         style={[styles.checkbox, isCompleted && styles.checkboxDone]}
         onPress={onToggle}
       >
         {isCompleted && <Text style={styles.checkmark}>✓</Text>}
-      </TouchableOpacity>
+      </Pressable>
 
-      <View style={styles.info}>
+      <Pressable style={styles.info} onPress={onPress}>
         <Text style={[styles.title, isCompleted && styles.titleDone]}>
           {task.title}
         </Text>
@@ -21,18 +21,14 @@ export default function TaskItem({ task, onToggle, onDelete, onPress }) {
           {task.description}
         </Text>
         <Text style={styles.date}>
-          {new Date(task.createdAt).toLocaleDateString('sq-AL', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
+          {new Date(task.createdAt).toLocaleDateString()}
         </Text>
-      </View>
+      </Pressable>
 
-      <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
+      <Pressable style={styles.deleteBtn} onPress={onDelete}>
         <Text style={styles.deleteText}>✕</Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
+      </Pressable>
+    </View>
   );
 }
 
@@ -44,11 +40,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
   },
   checkbox: {
     width: 24,
@@ -62,7 +53,6 @@ const styles = StyleSheet.create({
   },
   checkboxDone: {
     backgroundColor: '#6C63FF',
-    borderColor: '#6C63FF',
   },
   checkmark: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
   info: { flex: 1 },
